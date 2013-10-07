@@ -2,7 +2,7 @@ public class Percolation {
     public int[] grid;
     public int count;
     public int countUf;
-    public UF uf;
+    public WeightedQuickUnionUF uf;
     public int additionalTop;
     public int additionalBottom;
 
@@ -13,7 +13,7 @@ public class Percolation {
         additionalTop = 0;
         additionalBottom = countUf - 1;
         grid = new int[countUf];
-        uf = new UF(countUf);
+        uf = new WeightedQuickUnionUF(countUf);
 
         for (int k = 0; k < count; k++) {
             uf.union(additionalTop, k + 1);

@@ -1,53 +1,91 @@
 public class PercolationStats {
+    private double mean = 0;
+    private double deviation = 0;
+    private double confidenceLo = 0;
+    private double confidenceHi = 0;
+
     public PercolationStats(int N, int T)    // perform T independent computational experiments on an N-by-N grid
     {
+        int[] counts = new int[T];
+        double[] ps = new double[T];
+
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
-            boolean bool1 = percolation.isFull(2, 2);
-            boolean bool2 = percolation.isOpen(2, 2);
-            boolean bool3 = percolation.percolates();
+            while (!percolation.percolates()) {
+                percolation.open(StdRandom.uniform(1, N + 1), StdRandom.uniform(1, N + 1));
+            }
 
-            percolation.open(1, 2);
-            percolation.open(2, 2);
-            percolation.open(2, 3);
-            percolation.open(3, 3);
-            boolean bool4 = percolation.isFull(2, 2);
-            boolean bool5 = percolation.isOpen(2, 2);
-            boolean bool6 = percolation.percolates();
-            int[] grid2 = percolation.grid;
+            for (int k = 0; k < percolation.grid.length; k++) {
+                if (percolation.grid[k] > 0) {
+                    counts[i]++;
+                }
+            }
 
-            percolation.open(4, 3);
-            percolation.open(4, 4);
-            percolation.open(5, 4);
-            boolean bool7 = percolation.isFull(2, 2);
-            boolean bool8 = percolation.isOpen(2, 2);
-            boolean bool9 = percolation.percolates();
-            int[] grid3 = percolation.grid;
+            ps[i] = (double) counts[i] / ((double) N * (double) N);
+            mean += ps[i] / (double) T;
+
+            //StdOut.println(i + ". count=" + counts[i] + " and p=" + ps[i]);
         }
+
+        for (int i = 0; i < T; i++) {
+            deviation += (ps[i] - mean) * (ps[i] - mean) / (T - 1);
+        }
+
+        confidenceLo = mean - 1.96 * deviation / Math.sqrt((double) T);
+        confidenceHi = mean + 1.96 * deviation / Math.sqrt((double) T);
     }
 
     public double mean()                     // sample mean of percolation threshold
     {
-        return 1.1;
+        return mean;
     }
 
     public double stddev()                   // sample standard deviation of percolation threshold
     {
-        return 1.1;
+        return deviation;
     }
 
     public double confidenceLo()             // returns lower bound of the 95% confidence interval
     {
-        return 1.1;
+        return confidenceLo;
     }
 
     public double confidenceHi()             // returns upper bound of the 95% confidence interval
     {
-        return 1.1;
+        return confidenceHi;
     }
+//
+//    public void example(int N) {
+//        Percolation percolation = new Percolation(N);
+//        boolean bool1 = percolation.isFull(2, 2);
+//        boolean bool2 = percolation.isOpen(2, 2);
+//        boolean bool3 = percolation.percolates();
+//
+//        percolation.open(1, 2);
+//        percolation.open(2, 2);
+//        percolation.open(2, 3);
+//        percolation.open(3, 3);
+//        boolean bool4 = percolation.isFull(2, 2);
+//        boolean bool5 = percolation.isOpen(2, 2);
+//        boolean bool6 = percolation.percolates();
+//        int[] grid2 = percolation.grid;
+//
+//        percolation.open(4, 3);
+//        percolation.open(4, 4);
+//        percolation.open(5, 4);
+//        boolean bool7 = percolation.isFull(2, 2);
+//        boolean bool8 = percolation.isOpen(2, 2);
+//        boolean bool9 = percolation.percolates();
+//        int[] grid3 = percolation.grid;
+//    }
 
     public static void main(String[] args)   // test client, described below
     {
-        PercolationStats percolationStats = new PercolationStats(5, 1);
+        PercolationStats percolationStats = new PercolationStats(1, 100);
+
+        StdOut.println("mean=" + percolationStats.mean());
+        StdOut.println("deviation=" + percolationStats.stddev());
+        StdOut.println("confidenceLo=" + percolationStats.confidenceLo());
+        StdOut.println("confidenceHi=" + percolationStats.confidenceHi());
     }
 }
