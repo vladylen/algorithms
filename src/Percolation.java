@@ -36,12 +36,12 @@ public class Percolation {
 
     public boolean isOpen(int i, int j)    // is site (row i, column j) open?
     {
-        return uf.connected(additionalTop, position(i, j)) || uf.connected(position(i, j), additionalBottom);
+        return isFull(i, j) || grid[position(i, j)] == 1 && uf.connected(position(i, j), additionalBottom);
     }
 
     public boolean isFull(int i, int j)    // is site (row i, column j) full?
     {
-        return percolates() && uf.connected(additionalTop, position(i, j));
+        return grid[position(i, j)] == 1 && uf.connected(additionalTop, position(i, j));
     }
 
     public boolean percolates()            // does the system percolate?

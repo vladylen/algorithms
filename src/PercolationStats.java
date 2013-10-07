@@ -3,24 +3,24 @@ public class PercolationStats {
     {
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
-            boolean bool1 = percolation.isFull(1, 1);
-            boolean bool2 = percolation.isOpen(1, 1);
+            boolean bool1 = percolation.isFull(2, 2);
+            boolean bool2 = percolation.isOpen(2, 2);
             boolean bool3 = percolation.percolates();
 
             percolation.open(1, 2);
             percolation.open(2, 2);
             percolation.open(2, 3);
             percolation.open(3, 3);
-            boolean bool4 = percolation.isFull(1, 1);
-            boolean bool5 = percolation.isOpen(1, 1);
+            boolean bool4 = percolation.isFull(2, 2);
+            boolean bool5 = percolation.isOpen(2, 2);
             boolean bool6 = percolation.percolates();
             int[] grid2 = percolation.grid;
 
             percolation.open(4, 3);
             percolation.open(4, 4);
             percolation.open(5, 4);
-            boolean bool7 = percolation.isFull(1, 1);
-            boolean bool8 = percolation.isOpen(1, 1);
+            boolean bool7 = percolation.isFull(2, 2);
+            boolean bool8 = percolation.isOpen(2, 2);
             boolean bool9 = percolation.percolates();
             int[] grid3 = percolation.grid;
         }
