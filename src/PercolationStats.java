@@ -27,10 +27,7 @@ public class PercolationStats {
             //StdOut.println(i + ". count=" + counts[i] + " and p=" + ps[i]);
         }
 
-        for (int i = 0; i < T; i++) {
-            deviation += (ps[i] - mean) * (ps[i] - mean) / (T - 1);
-        }
-
+        deviation = StdStats.stddev(ps);
         confidenceLo = mean - 1.96 * deviation / Math.sqrt((double) T);
         confidenceHi = mean + 1.96 * deviation / Math.sqrt((double) T);
     }
@@ -81,11 +78,12 @@ public class PercolationStats {
 
     public static void main(String[] args)   // test client, described below
     {
-        PercolationStats percolationStats = new PercolationStats(1, 100);
+        int N = StdIn.readInt();
+        int T = StdIn.readInt();
+        PercolationStats percolationStats = new PercolationStats(N, T);
 
-        StdOut.println("mean=" + percolationStats.mean());
-        StdOut.println("deviation=" + percolationStats.stddev());
-        StdOut.println("confidenceLo=" + percolationStats.confidenceLo());
-        StdOut.println("confidenceHi=" + percolationStats.confidenceHi());
+        StdOut.println("mean = " + percolationStats.mean());
+        StdOut.println("deviation = " + percolationStats.stddev());
+        StdOut.println("95% confidence interval = " + percolationStats.confidenceLo() + ", " + percolationStats.confidenceHi());
     }
 }
