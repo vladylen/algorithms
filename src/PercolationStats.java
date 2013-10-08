@@ -15,17 +15,17 @@ public class PercolationStats {
 
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
-            int[] grid = new int[N * N + 2];
+            boolean[] grid = new boolean[N * N + 2];
             while (!percolation.percolates()) {
 
                 int p = StdRandom.uniform(1, N + 1);
                 int q = StdRandom.uniform(1, N + 1);
-                grid[position(p, q, N)] = 1;
+                grid[position(p, q, N)] = true;
                 percolation.open(p, q);
             }
 
             for (int k = 0; k < grid.length; k++) {
-                if (grid[k] > 0) {
+                if (grid[k]) {
                     counts[i]++;
                 }
             }
