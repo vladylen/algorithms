@@ -4,19 +4,28 @@ public class PercolationStats {
     private double confidenceLo = 0;
     private double confidenceHi = 0;
 
-    public PercolationStats(int N, int T)    // perform T independent computational experiments on an N-by-N grid
+    public PercolationStats(int N, int T)   // perform T independent computational experiments on an N-by-N grid
     {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException();
+        }
+
         int[] counts = new int[T];
         double[] ps = new double[T];
 
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
+            int[] grid = new int[N * N + 2];
             while (!percolation.percolates()) {
-                percolation.open(StdRandom.uniform(1, N + 1), StdRandom.uniform(1, N + 1));
+
+                int p = StdRandom.uniform(1, N + 1);
+                int q = StdRandom.uniform(1, N + 1);
+                grid[position(p, q, N)] = 1;
+                percolation.open(p, q);
             }
 
-            for (int k = 0; k < percolation.grid.length; k++) {
-                if (percolation.grid[k] > 0) {
+            for (int k = 0; k < grid.length; k++) {
+                if (grid[k] > 0) {
                     counts[i]++;
                 }
             }
@@ -51,35 +60,38 @@ public class PercolationStats {
     {
         return confidenceHi;
     }
-//
-//    public void example(int N) {
+
+    private int position(int i, int j, int count) {
+        i--;
+        j--;
+        if (i < count && j < count && i >= 0 && j >= 0) {
+            return i * count + j + 1;
+        } else {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+    }
+
+//    public static void example(int N) {
 //        Percolation percolation = new Percolation(N);
-//        boolean bool1 = percolation.isFull(2, 2);
-//        boolean bool2 = percolation.isOpen(2, 2);
-//        boolean bool3 = percolation.percolates();
-//
-//        percolation.open(1, 2);
-//        percolation.open(2, 2);
-//        percolation.open(2, 3);
-//        percolation.open(3, 3);
-//        boolean bool4 = percolation.isFull(2, 2);
-//        boolean bool5 = percolation.isOpen(2, 2);
-//        boolean bool6 = percolation.percolates();
-//        int[] grid2 = percolation.grid;
-//
-//        percolation.open(4, 3);
+//        percolation.open(4, 1);
+//        percolation.open(3, 1);
+//        percolation.open(2, 1);
+//        percolation.open(1, 1);
+//        percolation.open(1, 4);
+//        percolation.open(2, 4);
 //        percolation.open(4, 4);
-//        percolation.open(5, 4);
-//        boolean bool7 = percolation.isFull(2, 2);
-//        boolean bool8 = percolation.isOpen(2, 2);
-//        boolean bool9 = percolation.percolates();
-//        int[] grid3 = percolation.grid;
+//        percolation.open(3, 4);
+//        boolean bool1 = percolation.isFull(4, 4);
+//        boolean bool2 = percolation.isOpen(4, 4);
+//        boolean bool3 = percolation.percolates();
 //    }
 
     public static void main(String[] args)   // test client, described below
     {
         int N = StdIn.readInt();
         int T = StdIn.readInt();
+//        example(4);
+
         PercolationStats percolationStats = new PercolationStats(N, T);
 
         StdOut.println("mean = " + percolationStats.mean());

@@ -1,23 +1,27 @@
 public class Percolation {
-    public int[] grid;
-    public int count;
-    public int countUf;
-    public WeightedQuickUnionUF uf;
-    public int additionalTop;
-    public int additionalBottom;
+    private int[] grid;
+    private int count;
+    private WeightedQuickUnionUF uf;
+    private WeightedQuickUnionUF uf1;
+    private int additionalTop;
+    private int additionalBottom;
 
     public Percolation(int N)              // create N-by-N grid, with all sites blocked
     {
         count = N;
-        countUf = N * N + 2;
+        int countUf = N * N + 2;
         additionalTop = 0;
         additionalBottom = countUf - 1;
         grid = new int[countUf];
         uf = new WeightedQuickUnionUF(countUf);
 
+        uf1 = new WeightedQuickUnionUF(countUf-1);
+
         for (int k = 0; k < count; k++) {
             uf.union(additionalTop, k + 1);
             uf.union(additionalBottom, additionalBottom - k - 1);
+
+            uf1.union(additionalTop, k + 1);
         }
     }
 
@@ -30,23 +34,29 @@ public class Percolation {
         for (int k = 0; k < neighbors.length; k++) {
             if (neighbors[k] > 0 && grid[neighbors[k]] > 0) {
                 uf.union(position(i, j), neighbors[k]);
+
+                uf1.union(position(i, j), neighbors[k]);
             }
         }
     }
 
     public boolean isOpen(int i, int j)    // is site (row i, column j) open?
     {
-        return isFull(i, j) || grid[position(i, j)] == 1 && uf.connected(position(i, j), additionalBottom);
+        return grid[position(i, j)] == 1;
     }
 
     public boolean isFull(int i, int j)    // is site (row i, column j) full?
     {
-        return grid[position(i, j)] == 1 && uf.connected(additionalTop, position(i, j));
+        return isOpen(i, j) && uf1.connected(position(i, j), additionalTop);
     }
 
     public boolean percolates()            // does the system percolate?
     {
-        return uf.connected(additionalTop, additionalBottom);
+        if (count == 1) {
+            return isOpen(1, 1);
+        } else {
+            return uf.connected(additionalTop, additionalBottom);
+        }
     }
 
     private int position(int i, int j) {
@@ -68,9 +78,9 @@ public class Percolation {
         int r = position(i, j) + 1;
 
         if (t > 0) neighbors[0] = t;
-        if (l > 0) neighbors[1] = l;
-        if (b < count * count) neighbors[2] = b;
-        if (r < count * count) neighbors[3] = r;
+        if (l > 0 && (l % count != 0)) neighbors[1] = l;
+        if (b <= count * count) neighbors[2] = b;
+        if (r <= count * count && (((r - 1) % count) != 0)) neighbors[3] = r;
 
         return neighbors;
     }
