@@ -1,5 +1,5 @@
 public class Percolation {
-    private int[] grid;
+    private boolean[] grid;
     private int count;
     private WeightedQuickUnionUF uf;
     private WeightedQuickUnionUF uf1;
@@ -12,7 +12,7 @@ public class Percolation {
         int countUf = N * N + 2;
         additionalTop = 0;
         additionalBottom = countUf - 1;
-        grid = new int[countUf];
+        grid = new boolean[countUf];
         uf = new WeightedQuickUnionUF(countUf);
 
         uf1 = new WeightedQuickUnionUF(countUf-1);
@@ -27,12 +27,12 @@ public class Percolation {
 
     public void open(int i, int j)         // open site (row i, column j) if it is not already
     {
-        grid[position(i, j)] = 1;
+        grid[position(i, j)] = true;
 
         int[] neighbors = neighbors(i, j);
 
         for (int k = 0; k < neighbors.length; k++) {
-            if (neighbors[k] > 0 && grid[neighbors[k]] > 0) {
+            if (neighbors[k] > 0 && grid[neighbors[k]]) {
                 uf.union(position(i, j), neighbors[k]);
 
                 uf1.union(position(i, j), neighbors[k]);
@@ -42,7 +42,7 @@ public class Percolation {
 
     public boolean isOpen(int i, int j)    // is site (row i, column j) open?
     {
-        return grid[position(i, j)] == 1;
+        return grid[position(i, j)];
     }
 
     public boolean isFull(int i, int j)    // is site (row i, column j) full?
