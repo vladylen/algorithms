@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
     private int N = 0;               // number of elements on queue
@@ -53,6 +54,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     public Item removeFirst()          // delete and return the item at the front
     {
+        if (isEmpty()) throw new NoSuchElementException();
         if (size() == 1) {
             removeFirstElement();
         } else {
@@ -67,6 +69,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     public Item removeLast()           // delete and return the item at the end
     {
+        if (isEmpty()) throw new NoSuchElementException();
         if (size() == 1) {
             removeFirstElement();
         } else {
@@ -98,10 +101,10 @@ public class Deque<Item> implements Iterable<Item> {
             return current != null;
         }
 
-        public void remove() {
-        }
+        public void remove()      { throw new UnsupportedOperationException();  }
 
         public Item next() {
+            if (!hasNext()) throw new NoSuchElementException();
             Item item = current.item;
             current = current.next;
 
@@ -136,32 +139,4 @@ public class Deque<Item> implements Iterable<Item> {
             N = 0;
         }
     }
-    /*
-    public class Stack<Item>
-    {
-        private Node first = null;
-        private class Node
-        {
-            Item item;
-            Node next;
-        }
-
-        public boolean isEmpty()
-        { return first == null; }
-        public void push(Item item)
-        {
-            Node oldfirst = first;
-            first = new Node();
-            first.item = item;
-            first.next = oldfirst;
-        }
-        public Item pop()
-        {
-            Item item = first.item;
-            first = first.next;
-            return item;
-        }
-    }
-    */
-
 }

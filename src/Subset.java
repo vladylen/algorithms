@@ -1,13 +1,20 @@
-/**
- * Created with IntelliJ IDEA.
- * User: vlsh
- * Date: 09/10/13
- * Time: 20:58
- * To change this template use File | Settings | File Templates.
- */
-public class Runner {
+public class Subset {
     public static void main(String[] args)   // test client, described below
     {
+        RandomizedQueue queue = new RandomizedQueue();
+        Integer k = StdIn.readInt();
+        Integer N = StdIn.readInt();
+
+        for (int i = 0; i < N; i++) {
+            String str = StdIn.readString();
+            queue.enqueue(str);
+        }
+
+        for (int i = 0; i < k; i++) {
+            StdOut.print(queue.dequeue());
+            //StdOut.println(queue.dequeue());
+        }
+        /*
         Deque<Integer> deque = new Deque<Integer>();
 
         deque.addFirst(1);
@@ -26,5 +33,6 @@ public class Runner {
         deque.removeFirst();
         deque.addFirst(1);
         deque.removeLast();
+        */
     }
 }
