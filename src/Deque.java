@@ -22,6 +22,8 @@ public class Deque<Item> implements Iterable<Item> {
 
     public void addFirst(Item item)    // insert the item at the front
     {
+        if (item == null) throw new NullPointerException();
+
         if (isEmpty()) {
             addFirstElement(item);
         } else {
@@ -38,6 +40,8 @@ public class Deque<Item> implements Iterable<Item> {
 
     public void addLast(Item item)     // insert the item at the end
     {
+        if (item == null) throw new NullPointerException();
+
         if (isEmpty()) {
             addFirstElement(item);
         } else {
@@ -55,6 +59,9 @@ public class Deque<Item> implements Iterable<Item> {
     public Item removeFirst()          // delete and return the item at the front
     {
         if (isEmpty()) throw new NoSuchElementException();
+
+        Item item = first.item;
+
         if (size() == 1) {
             removeFirstElement();
         } else {
@@ -64,12 +71,15 @@ public class Deque<Item> implements Iterable<Item> {
 
         decCount();
 
-        return first == null ? null : first.item;
+        return item;
     }
 
     public Item removeLast()           // delete and return the item at the end
     {
         if (isEmpty()) throw new NoSuchElementException();
+
+        Item item = last.item;
+
         if (size() == 1) {
             removeFirstElement();
         } else {
@@ -79,7 +89,7 @@ public class Deque<Item> implements Iterable<Item> {
 
         decCount();
 
-        return last == null ? null : last.item;
+        return item;
     }
 
     public Iterator<Item> iterator()   // return an iterator over items in order from front to end
