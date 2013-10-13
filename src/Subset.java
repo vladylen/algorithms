@@ -1,3 +1,5 @@
+import java.util.Iterator;
+
 public class Subset {
     public static void main(String[] args)   // test client, described below
     {
@@ -14,6 +16,31 @@ public class Subset {
             StdOut.println(queue.dequeue());
         }
 
+/*
+        queue.enqueue(0);
+        queue.enqueue(1);
+        queue.enqueue(2);
+        queue.enqueue(3);
+        queue.enqueue(4);
+        queue.dequeue();
+        queue.dequeue();
+        queue.enqueue(3);
+        queue.enqueue(4);
+
+        Iterator it1 = queue.iterator();
+
+        StdOut.println(it1.next());
+        StdOut.println(it1.next());
+        StdOut.println(it1.next());
+        StdOut.println(it1.next());
+        StdOut.println(it1.next());
+
+        Iterator it2 = queue.iterator();
+        StdOut.println(it2.next());
+        StdOut.println(it2.next());
+        StdOut.println(it2.next());
+        StdOut.println(it2.next());
+        StdOut.println(it2.next());
         /*
         queue.enqueue(0);
         queue.enqueue(1);

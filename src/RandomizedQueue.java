@@ -93,11 +93,25 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * @return an iterator that iterates over the items in this queue in FIFO order
      */
     public Iterator<Item> iterator() {
-        return new ArrayIterator();
+        Item[] queue = (Item[]) new Object[N];
+
+        for (int i = 0; i < N; i++) {
+            queue[i] = q[(i + first) % q.length];
+        }
+
+        StdRandom.shuffle(queue);
+
+        return new ArrayIterator(queue);
     }
 
     // an iterator, doesn't implement remove() since it's optional
     private class ArrayIterator implements Iterator<Item> {
+        private Item[] queueInt;
+
+        public ArrayIterator(Item[] queue) {
+            queueInt = queue;
+        }
+
         private int i = 0;
 
         public boolean hasNext() {
@@ -110,7 +124,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         public Item next() {
             if (!hasNext()) throw new NoSuchElementException();
-            Item item = q[(i + first) % q.length];
+            Item item = queueInt[i];
             i++;
             return item;
         }
