@@ -20,6 +20,7 @@ public class Point implements Comparable<Point> {
     private final int x;                              // x coordinate
     private final int y;                              // y coordinate
 
+    /*
     //TODO remove
     public int getY() {
         return y;
@@ -29,6 +30,7 @@ public class Point implements Comparable<Point> {
     public int getX() {
         return x;
     }
+    */
 
     // create the point (x, y)
     public Point(int x, int y) {
@@ -59,7 +61,19 @@ public class Point implements Comparable<Point> {
 
         // slope between this point and that point
         private double slopeTo(int x, int y) {
-            return (this.y - y) / (this.x - x);
+            double res;
+            double dy = this.y - y;
+            double dx = this.x - x;
+
+            if (dy == 0) {
+                res = 0;
+            } else if (dx == 0) {
+                res = 9999999.9999;
+            } else {
+                res = dy / dx;
+            }
+
+            return res;
         }
     }
 
@@ -84,7 +98,7 @@ public class Point implements Comparable<Point> {
         if (dy == 0) {
             res = 0;
         } else if (dx == 0) {
-            res = 1;
+            res = 9999999.9999;
         } else {
             res = dy / dx;
         }

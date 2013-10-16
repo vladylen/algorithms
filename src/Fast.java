@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class Brute {
+public class Fast {
     public static void main(String[] args) {
         // TODO remove
         args = new String[1];
@@ -19,7 +19,7 @@ public class Brute {
                 }
 
                 drawPoints(points);
-                calculationBrute(points);
+                calculationFast(points);
             } catch (Exception ex) {
                 StdOut.println(ex.toString());
             }
@@ -106,6 +106,7 @@ public class Brute {
                     uniqueSequence[uniqueCount] = str;
                     uniqueCount++;
                     StdOut.println(str);
+                    drawSequence(result);
                 }
             }
         }
