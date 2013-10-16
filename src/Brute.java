@@ -2,10 +2,6 @@ import java.util.Arrays;
 
 public class Brute {
     public static void main(String[] args) {
-        // TODO remove
-        args = new String[1];
-        args[0] = "input8.txt";
-
         if (args.length > 0) {
             String argFileName = args[0];
 
@@ -50,67 +46,6 @@ public class Brute {
         }
     }
 
-    private static void calculationFast(Point[] points) {
-        String[] uniqueSequence = new String[points.length];
-        int uniqueCount = 0;
-
-        for (int i = 0; i < points.length; i++) {
-            uniqueSequence[i] = "";
-        }
-
-        for (int i = 0; i < points.length; i++) {
-            Point pointOriginal = points[i];
-            Point[] sequence = new Point[points.length];
-            Point[] pointsSorted = Arrays.copyOf(points, points.length);
-            sequence[0] = pointOriginal;
-            int length = 1;
-            double slopeOld = 0;
-
-            Arrays.sort(pointsSorted, pointOriginal.SLOPE_ORDER);
-
-            /** /
-             //TODO remove
-             StdOut.println(pointOriginal);
-             /**/
-
-            for (int l = 0; l < pointsSorted.length; l++) {
-                if (pointOriginal != pointsSorted[l]) {
-                    double slopeNew = pointOriginal.slopeTo(pointsSorted[l]);
-                    if (slopeNew == slopeOld) {
-                        //Add element to the sequence
-                        sequence[length] = pointsSorted[l];
-                        length++;
-                    } else if (length >= 4) {
-                        //End of the sequence
-                        break;
-                    } else {
-                        //Begin new sequence
-                        sequence[1] = pointsSorted[l];
-                        length = 2;
-                        slopeOld = slopeNew;
-                    }
-                    /** /
-                     //TODO remove
-                     StdOut.println(pointsSorted[l].toString() + " " + pointOriginal.slopeTo(pointsSorted[l]));
-                     /**/
-                }
-            }
-
-            if (length >= 4) {
-                Point[] result;
-                result = Arrays.copyOf(sequence, length);
-                Arrays.sort(result);
-                String str = getSequence(result);
-                boolean key = Arrays.asList(uniqueSequence).contains(str);
-                if (!key) {
-                    uniqueSequence[uniqueCount] = str;
-                    uniqueCount++;
-                    StdOut.println(str);
-                }
-            }
-        }
-    }
-
     private static String getSequence(Point[] sequence) {
         String str = "";
 
@@ -131,7 +66,6 @@ public class Brute {
         StdDraw.show(0);
         for (int i = 0; i < points.length; i++) {
             /*
-            //TODO remove
             for (int k = 0; k < 5; k++) {
                 for (int l = 0; l < 5; l++) {
                     Point point = new Point(points[i].getX() - 2 + k, points[i].getY() + 2 - l);

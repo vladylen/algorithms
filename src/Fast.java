@@ -2,10 +2,6 @@ import java.util.Arrays;
 
 public class Fast {
     public static void main(String[] args) {
-        // TODO remove
-        args = new String[1];
-        args[0] = "input8.txt";
-
         if (args.length > 0) {
             String argFileName = args[0];
 
@@ -28,28 +24,6 @@ public class Fast {
         }
     }
 
-    private static void calculationBrute(Point[] points) {
-        for (int i = 0; i < points.length; i++) {
-            for (int k = i + 1; k < points.length; k++) {
-                for (int l = k + 1; l < points.length; l++) {
-                    for (int m = l + 1; m < points.length; m++) {
-                        double slope = points[i].slopeTo(points[k]);
-                        if ((points[i].slopeTo(points[l]) == slope) && (points[i].slopeTo(points[m]) == slope)) {
-                            Point[] sequence = new Point[4];
-                            sequence[0] = points[i];
-                            sequence[1] = points[k];
-                            sequence[2] = points[l];
-                            sequence[3] = points[m];
-                            Arrays.sort(sequence);
-                            StdOut.println(getSequence(sequence));
-                            drawSequence(sequence);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private static void calculationFast(Point[] points) {
         String[] uniqueSequence = new String[points.length];
         int uniqueCount = 0;
@@ -69,7 +43,6 @@ public class Fast {
             Arrays.sort(pointsSorted, pointOriginal.SLOPE_ORDER);
 
             /** /
-             //TODO remove
              StdOut.println(pointOriginal);
              /**/
 
@@ -90,7 +63,6 @@ public class Fast {
                         slopeOld = slopeNew;
                     }
                     /** /
-                     //TODO remove
                      StdOut.println(pointsSorted[l].toString() + " " + pointOriginal.slopeTo(pointsSorted[l]));
                      /**/
                 }
@@ -132,7 +104,6 @@ public class Fast {
         StdDraw.show(0);
         for (int i = 0; i < points.length; i++) {
             /*
-            //TODO remove
             for (int k = 0; k < 5; k++) {
                 for (int l = 0; l < 5; l++) {
                     Point point = new Point(points[i].getX() - 2 + k, points[i].getY() + 2 - l);

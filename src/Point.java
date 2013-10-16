@@ -21,12 +21,10 @@ public class Point implements Comparable<Point> {
     private final int y;                              // y coordinate
 
     /*
-    //TODO remove
     public int getY() {
         return y;
     }
 
-    //TODO remove
     public int getX() {
         return x;
     }
@@ -68,7 +66,7 @@ public class Point implements Comparable<Point> {
             if (dy == 0) {
                 res = 0;
             } else if (dx == 0) {
-                res = 9999999.9999;
+                res = Double.POSITIVE_INFINITY;
             } else {
                 res = dy / dx;
             }
@@ -98,7 +96,7 @@ public class Point implements Comparable<Point> {
         if (dy == 0) {
             res = 0;
         } else if (dx == 0) {
-            res = 9999999.9999;
+            res = Double.POSITIVE_INFINITY;
         } else {
             res = dy / dx;
         }
