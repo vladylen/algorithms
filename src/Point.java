@@ -20,19 +20,29 @@ public class Point implements Comparable<Point> {
     private final int x;                              // x coordinate
     private final int y;                              // y coordinate
 
+    //TODO remove
+    public int getY() {
+        return y;
+    }
+
+    //TODO remove
+    public int getX() {
+        return x;
+    }
+
     // create the point (x, y)
     public Point(int x, int y) {
         /* DO NOT MODIFY */
         this.x = x;
         this.y = y;
-        SLOPE_ORDER = new ByName(x, y);
+        SLOPE_ORDER = new BySlope(x, y);
     }
 
-    private class ByName implements Comparator<Point> {
+    private class BySlope implements Comparator<Point> {
         int x;
         int y;
 
-        public ByName(int x, int y) {
+        public BySlope(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -46,6 +56,7 @@ public class Point implements Comparable<Point> {
                 return 1;
             }
         }
+
         // slope between this point and that point
         private double slopeTo(int x, int y) {
             return (this.y - y) / (this.x - x);
@@ -66,7 +77,19 @@ public class Point implements Comparable<Point> {
 
     // slope between this point and that point
     public double slopeTo(Point that) {
-        return (that.y - this.y) / (that.x - this.y);
+        double res;
+        double dy = that.y - this.y;
+        double dx = that.x - this.x;
+
+        if (dy == 0) {
+            res = 0;
+        } else if (dx == 0) {
+            res = 1;
+        } else {
+            res = dy / dx;
+        }
+
+        return res;
     }
 
     // is this point lexicographically smaller than that one?
@@ -89,18 +112,5 @@ public class Point implements Comparable<Point> {
 
     // unit test
     public static void main(String[] args) {
-        Point q = new Point(0, 0);
-        Point w = new Point(6, 4);
-        Point e = new Point(3, 3);
-        Point r = new Point(10, 2);
-
-        q.draw();
-        w.draw();
-        e.draw();
-        r.draw();
-
-        q.drawTo(w);
-        q.drawTo(e);
-        q.drawTo(r);
     }
 }

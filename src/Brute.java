@@ -1,12 +1,10 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Comparator;
+import java.util.Arrays;
 
 public class Brute {
     public static void main(String[] args) {
+        // TODO remove
         args = new String[1];
-        args[0] = "input6.txt";
-        draw(args[0]);
+        args[0] = "input8.txt";
 
         if (args.length > 0) {
             String argFileName = args[0];
@@ -14,38 +12,37 @@ public class Brute {
             try {
                 In in = new In(argFileName);
                 int N = in.readInt();
-                Point[] Points = new Point[N];
+                Point[] points = new Point[N];
 
                 for (int i = 0; i < N; i++) {
-                    Points[i] = new Point(in.readInt(), in.readInt());
-                    StdOut.println(Points[i].toString());
+                    points[i] = new Point(in.readInt(), in.readInt());
                 }
 
-                calculation(Points);
+                drawPoints(points);
+                calculation(points);
             } catch (Exception ex) {
                 StdOut.println(ex.toString());
             }
         } else {
             StdOut.println("main() - No arguments.");
         }
-        /*
-        if (q.slopeTo(w) == q.slopeTo(e) && q.slopeTo(w) == q.slopeTo(r)) {
-        }
-        */
     }
 
-    private static void calculation(Point[] Points) {
-        for (int i = 0; i < Points.length; i++) {
-            for (int k = i + 1; k < Points.length; k++) {
-                for (int l = k + 1; l < Points.length; l++) {
-                    for (int m = l + 1; m < Points.length; m++) {
-                        double slope = Points[i].slopeTo(Points[k]);
-                        if ((Points[i].slopeTo(Points[l]) == slope) && (Points[i].slopeTo(Points[m]) == slope)) {
-                            StdOut.println("quadro");
-                            StdOut.println(Points[i].toString());
-                            StdOut.println(Points[k].toString());
-                            StdOut.println(Points[l].toString());
-                            StdOut.println(Points[m].toString());
+    private static void calculation(Point[] points) {
+        for (int i = 0; i < points.length; i++) {
+            for (int k = i + 1; k < points.length; k++) {
+                for (int l = k + 1; l < points.length; l++) {
+                    for (int m = l + 1; m < points.length; m++) {
+                        double slope = points[i].slopeTo(points[k]);
+                        if ((points[i].slopeTo(points[l]) == slope) && (points[i].slopeTo(points[m]) == slope)) {
+                            Point[] sequence = new Point[4];
+                            sequence[0] = points[i];
+                            sequence[1] = points[k];
+                            sequence[2] = points[l];
+                            sequence[3] = points[m];
+                            Arrays.sort(sequence);
+                            StdOut.println(sequence[0] + " -> " + sequence[1] + " -> " + sequence[2] + " -> " + sequence[3]);
+                            drawSequence(sequence);
                         }
                     }
                 }
@@ -53,26 +50,28 @@ public class Brute {
         }
     }
 
-    private static void draw(String filename) {
-        // rescale coordinates and turn on animation mode
+    private static void drawPoints(Point[] points) {
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
         StdDraw.show(0);
-
-        // read in the input
-        In in = new In(filename);
-        int N = in.readInt();
-        Point prevPoint = new Point(0, 0);
-
-        for (int i = 0; i < N; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            Point p = new Point(x, y);
-            p.draw();
-            prevPoint.drawTo(p);
+        for (int i = 0; i < points.length; i++) {
+            //TODO remove
+            for (int k = 0; k < 5; k++) {
+                for (int l = 0; l < 5; l++) {
+                    Point point = new Point(points[i].getX() - 2 + k, points[i].getY() + 2 - l);
+                    point.draw();
+                }
+            }
+            points[i].draw();
         }
+        StdDraw.show(0);
+    }
 
-        // display to screen all at once
+    private static void drawSequence(Point[] points) {
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        StdDraw.show(0);
+        points[0].drawTo(points[points.length - 1]);
         StdDraw.show(0);
     }
 }
