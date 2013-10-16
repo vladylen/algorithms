@@ -2,6 +2,11 @@ import java.util.Arrays;
 
 public class Brute {
     public static void main(String[] args) {
+        /*
+        args = new String[1];
+        args[0] = "input8.txt";
+        */
+
         if (args.length > 0) {
             String argFileName = args[0];
 
