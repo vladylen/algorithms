@@ -1,11 +1,13 @@
 import java.util.Arrays;
 
 public class Fast {
+    private static int drawCount = 0;
+
     public static void main(String[] args) {
-        /*
+        /** /
         args = new String[1];
-        args[0] = "input8.txt";
-        */
+        args[0] = "input80_my.txt";
+        /**/
 
         if (args.length > 0) {
             String argFileName = args[0];
@@ -21,6 +23,7 @@ public class Fast {
 
                 drawPoints(points);
                 calculationFast(points);
+                StdDraw.show(0);
             } catch (Exception ex) {
                 StdOut.println(ex.toString());
             }
@@ -30,7 +33,7 @@ public class Fast {
     }
 
     private static void calculationFast(Point[] points) {
-        String[] uniqueSequence = new String[points.length];
+        String[] uniqueSequence = new String[points.length * 7];
         int uniqueCount = 0;
 
         for (int i = 0; i < points.length; i++) {
@@ -60,7 +63,25 @@ public class Fast {
                         length++;
                     } else if (length >= 4) {
                         //End of the sequence
-                        break;
+                        Point[] result;
+                        result = Arrays.copyOf(sequence, length);
+                        Arrays.sort(result);
+                        String str = getSequence(result);
+                        boolean key = Arrays.asList(uniqueSequence).contains(str);
+                        if (!key) {
+                            uniqueSequence[uniqueCount] = str;
+                            uniqueCount++;
+                            StdOut.println(str);
+                            drawSequence(result);
+                        }
+
+                        //Start new sequence
+                        sequence = new Point[points.length];
+                        sequence[0] = pointOriginal;
+                        //Begin new sequence
+                        sequence[1] = pointsSorted[l];
+                        length = 2;
+                        slopeOld = slopeNew;
                     } else {
                         //Begin new sequence
                         sequence[1] = pointsSorted[l];
@@ -74,6 +95,7 @@ public class Fast {
             }
 
             if (length >= 4) {
+                //End of the sequence
                 Point[] result;
                 result = Arrays.copyOf(sequence, length);
                 Arrays.sort(result);
@@ -106,8 +128,7 @@ public class Fast {
     private static void drawPoints(Point[] points) {
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
-        StdDraw.show(0);
-        for (int i = 0; i < points.length; i++) {
+         for (int i = 0; i < points.length; i++) {
             /*
             for (int k = 0; k < 5; k++) {
                 for (int l = 0; l < 5; l++) {
@@ -118,7 +139,6 @@ public class Fast {
             */
             points[i].draw();
         }
-        StdDraw.show(0);
     }
 
     private static void drawSequence(Point[] points) {
@@ -126,6 +146,6 @@ public class Fast {
         StdDraw.setYscale(0, 32768);
         StdDraw.show(0);
         points[0].drawTo(points[points.length - 1]);
-        StdDraw.show(0);
+        drawCount++;
     }
 }
