@@ -152,10 +152,14 @@ public class Board {
             }
 
             public Board next() {
-                return neighbors[position++];
+                Board neighbor = neighbors[position];
+                position++;
+                return neighbor;
             }
 
             public boolean hasNext() {
+                if (position < 4 && neighbors[position] == null) return false;
+
                 return position < countOfNeighbors;
             }
 

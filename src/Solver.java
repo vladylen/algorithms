@@ -1,32 +1,31 @@
 import java.util.Comparator;
-import java.util.Iterator;
 
 public class Solver {
     private Board initialBoard;
-    private int steps;
+    private int minSteps;
     private boolean solvable = false;
-    private Board[] solution;
+    private Queue<Board> solution;
 
     public Solver(Board initial)            // find a solution to the initial board (using the A* algorithm)
     {
+        solution = new Queue<Board>();
         initialBoard = initial;
         solving();
     }
 
     private void solving() {
         MinPQ<Node> mq = new MinPQ<Node>(10, new NodeComparator());
+        double Max = 2 * factorial(initialBoard.dimension());
 
-        steps = 0;
+        int steps = 0;
         Node initialNode = new Node(initialBoard, steps);
 
         mq.insert(initialNode);
         Node searchNode = mq.delMin();
+        solution.enqueue(searchNode.board);
 
         Board previousBoard = null;
         boolean goal = initialNode.board.isGoal();
-
-        StdOut.println("priority=" + searchNode.getPriority());
-        StdOut.println(searchNode.board);
 
         while (!goal) {
             steps++;
@@ -40,21 +39,18 @@ public class Solver {
             previousBoard = searchNode.board;
 
             searchNode = mq.delMin();
+            solution.enqueue(searchNode.board);
             goal = searchNode.board.isGoal();
 
-            StdOut.println("priority=" + searchNode.getPriority());
-            StdOut.println(searchNode.board);
+            if ((double)steps > Max) break;
         }
 
-        if (goal) solvable = true;
-
-        /*
-        StdOut.println("********MinPQ********");
-        for (Node element : mq) {
-            StdOut.println("priority=" + element.getPriority());
-            StdOut.println(element.board);
+        if (goal) {
+            solvable = true;
+            minSteps = steps;
+        } else {
+            minSteps = 0;
         }
-        */
     }
 
     public boolean isSolvable()             // is the initial board solvable?
@@ -64,26 +60,28 @@ public class Solver {
 
     public int moves()                      // min number of moves to solve initial board; -1 if no solution
     {
-        return steps;
+        if (isSolvable()) {
+            return minSteps;
+        } else {
+            return -1;
+        }
     }
 
     public Iterable<Board> solution()       // sequence of boards in a shortest solution; null if no solution
     {
-        return new DequeIterator();
-    }
-
-    private class DequeIterator implements Iterable<Board> {
-        public Iterator<Board> iterator() {
+        if (isSolvable()) {
+            return solution;
+        } else {
             return null;
         }
     }
 
     public static void main(String[] args) {
-        boolean debug = true;
+        boolean debug = false;
 
         if (debug) {
             args = new String[1];
-            args[0] = "puzzle07.txt";
+            args[0] = "8puzzle/puzzle02.txt";
         }
 
         In in = new In(args[0]);
@@ -97,32 +95,14 @@ public class Solver {
         // solve the puzzle
         Solver solver = new Solver(initial);
 
-        if (!debug) {
-            // print solution to standard output
-            if (!solver.isSolvable())
-                StdOut.println("No solution possible");
-            else {
-                StdOut.println("Minimum number of moves = " + solver.moves());
-                for (Board board : solver.solution())
-                    StdOut.println(board);
-            }
-        }
-
-        /*
-        if (debug) {
-            StdOut.println(initial);
-            StdOut.println("dimension = " + initial.dimension());
-            StdOut.println("hamming = " + initial.hamming());
-            StdOut.println("manhattan = " + initial.manhattan());
-            StdOut.println("isGoal = " + initial.isGoal());
-            StdOut.println("twin = " + initial.twin());
-            StdOut.println("equals = " + initial.equals(initial));
-            StdOut.println("neighbors = ");
-            for (Board board : initial.neighbors()) {
+        // print solution to standard output
+        if (!solver.isSolvable())
+            StdOut.println("No solution possible");
+        else {
+            StdOut.println("Minimum number of moves = " + solver.moves());
+            for (Board board : solver.solution())
                 StdOut.println(board);
-            }
         }
-        */
     }
 
     private class Node {
@@ -153,5 +133,13 @@ public class Solver {
 
             return 0;
         }
+    }
+
+    private static int factorial(int n) {
+        int fact = 1; // this  will be the result
+        for (int i = 1; i <= n; i++) {
+            fact *= i;
+        }
+        return fact;
     }
 }
