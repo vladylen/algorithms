@@ -19,7 +19,6 @@ public class Board {
                 }
             }
         }
-
     }
 
     public int dimension()                 // board dimension N
