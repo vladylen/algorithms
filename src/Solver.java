@@ -28,10 +28,12 @@ public class Solver {
     }
 
     public static void main(String[] args) {
-        /** /
-        args = new String[1];
-        args[0] = "puzzle04.txt";
-        /**/
+        boolean debug = false;
+
+        if (debug) {
+            args = new String[1];
+            args[0] = "puzzle04.txt";
+        }
 
         In in = new In(args[0]);
         int N = in.readInt();
@@ -44,26 +46,30 @@ public class Solver {
         // solve the puzzle
         Solver solver = new Solver(initial);
 
-        /** /
-        StdOut.println(initial);
-        StdOut.println("dimension = " + initial.dimension());
-        StdOut.println("hamming = " + initial.hamming());
-        StdOut.println("manhattan = " + initial.manhattan());
-        StdOut.println("isGoal = " + initial.isGoal());
-        StdOut.println("twin = " + initial.twin());
-        StdOut.println("equals = " + initial.equals(initial1));
-        /**/
+        if (debug) {
+            StdOut.println(initial);
+            StdOut.println("dimension = " + initial.dimension());
+            StdOut.println("hamming = " + initial.hamming());
+            StdOut.println("manhattan = " + initial.manhattan());
+            StdOut.println("isGoal = " + initial.isGoal());
+            StdOut.println("twin = " + initial.twin());
+            StdOut.println("equals = " + initial.equals(initial));
+            StdOut.println("neighbors = ");
+            for (Board board : initial.neighbors()) {
+                StdOut.println(board);
+            }
+        }
 
-        /**/
-         // print solution to standard output
-         if (!solver.isSolvable())
-         StdOut.println("No solution possible");
-         else {
-         StdOut.println("Minimum number of moves = " + solver.moves());
-         for (Board board : solver.solution())
-         StdOut.println(board);
-         }
-         /**/
+        if (!debug) {
+            // print solution to standard output
+            if (!solver.isSolvable())
+                StdOut.println("No solution possible");
+            else {
+                StdOut.println("Minimum number of moves = " + solver.moves());
+                for (Board board : solver.solution())
+                    StdOut.println(board);
+            }
+        }
 
     }
 }
