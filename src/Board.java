@@ -3,33 +3,12 @@ import java.util.Iterator;
 public class Board {
     private int N;
     private int emptyPosition;
-    private Node[][] blocks;
-
-    // helper linked list class
-    private static class Node<Integer> {
-        private Integer value = null;
-        private Integer position = null;
-        private Boolean empty = false;
-    }
+    private int[][] blocks;
 
     public Board(int[][] blocks)           // construct a board from an N-by-N array of blocks
     {
         N = blocks.length;
-        this.blocks = new Node[N][N];
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                // else {
-                this.blocks[i][j] = new Node();//(blocks[i][j]);
-                this.blocks[i][j].value = blocks[i][j];
-                this.blocks[i][j].position = position(i, j);
-                //}
-                if (blocks[i][j] == 0) {
-                    this.emptyPosition = position(i, j);
-                    this.blocks[i][j].empty = true;
-                }
-            }
-        }
+        this.blocks = blocks;
     }
 
     // (where blocks[i][j] = block in row i, column j)
@@ -44,8 +23,8 @@ public class Board {
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (!this.blocks[i][j].empty) {
-                    if (this.blocks[i][j].position != this.blocks[i][j].value) {
+                if (this.blocks[i][j] != 0) {
+                    if (position(i, j) != this.blocks[i][j]) {
                         count++;
                     }
                 }
@@ -92,7 +71,7 @@ public class Board {
         s.append(N).append("\n");
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                s.append(String.format("%2d ", blocks[i][j].value, blocks[i][j].position));
+                s.append(String.format("%2d ", blocks[i][j], position(i,j)));
             }
             s.append("\n");
         }

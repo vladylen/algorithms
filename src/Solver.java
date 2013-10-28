@@ -28,7 +28,7 @@ public class Solver {
     }
 
     public static void main(String[] args) {
-        /**/
+        /** /
         args = new String[1];
         args[0] = "puzzle04.txt";
         /**/
@@ -44,10 +44,12 @@ public class Solver {
         // solve the puzzle
         Solver solver = new Solver(initial);
 
+        /** /
         StdOut.println(initial);
         StdOut.println(initial.hamming());
+        /**/
 
-        /*
+        /**/
         // print solution to standard output
         if (!solver.isSolvable())
             StdOut.println("No solution possible");
@@ -56,7 +58,7 @@ public class Solver {
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
-        */
+        /**/
 
     }
 }
