@@ -46,19 +46,24 @@ public class Solver {
 
         /** /
         StdOut.println(initial);
-        StdOut.println(initial.hamming());
+        StdOut.println("dimension = " + initial.dimension());
+        StdOut.println("hamming = " + initial.hamming());
+        StdOut.println("manhattan = " + initial.manhattan());
+        StdOut.println("isGoal = " + initial.isGoal());
+        StdOut.println("twin = " + initial.twin());
+        StdOut.println("equals = " + initial.equals(initial1));
         /**/
 
         /**/
-        // print solution to standard output
-        if (!solver.isSolvable())
-            StdOut.println("No solution possible");
-        else {
-            StdOut.println("Minimum number of moves = " + solver.moves());
-            for (Board board : solver.solution())
-                StdOut.println(board);
-        }
-        /**/
+         // print solution to standard output
+         if (!solver.isSolvable())
+         StdOut.println("No solution possible");
+         else {
+         StdOut.println("Minimum number of moves = " + solver.moves());
+         for (Board board : solver.solution())
+         StdOut.println(board);
+         }
+         /**/
 
     }
 }
