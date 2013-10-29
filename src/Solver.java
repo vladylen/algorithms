@@ -15,7 +15,15 @@ public class Solver {
 
     private void solving() {
         MinPQ<Node> mq = new MinPQ<Node>(10, new NodeComparator());
-        double Max = 2 * factorial(initialBoard.dimension());
+
+        double max = 100;
+        if (initialBoard.dimension() < 10) {
+            max = 500;
+        } else if (initialBoard.dimension() < 15) {
+            max = 5000;
+        } else {
+            max = 50000;
+        }
 
         int steps = 0;
         Node initialNode = new Node(initialBoard, steps);
@@ -26,6 +34,11 @@ public class Solver {
 
         Board previousBoard = null;
         boolean goal = initialNode.board.isGoal();
+
+        /** /
+        StdOut.println("steps = " + steps);
+        StdOut.println(searchNode.board);
+        /**/
 
         while (!goal) {
             steps++;
@@ -38,11 +51,19 @@ public class Solver {
 
             previousBoard = searchNode.board;
 
-            searchNode = mq.delMin();
+            do {
+                searchNode = mq.delMin();
+            } while (searchNode.moves != steps);
+
             solution.enqueue(searchNode.board);
             goal = searchNode.board.isGoal();
 
-            if ((double)steps > Max) break;
+            /** /
+            StdOut.println("steps = " + steps);
+            StdOut.println(searchNode.board);
+            /**/
+
+            if ((double) steps > max) break;
         }
 
         if (goal) {
@@ -77,11 +98,11 @@ public class Solver {
     }
 
     public static void main(String[] args) {
-        boolean debug = false;
+        boolean debug = true;
 
         if (debug) {
             args = new String[1];
-            args[0] = "8puzzle/puzzle02.txt";
+            args[0] = "8puzzle/puzzle14.txt";
         }
 
         In in = new In(args[0]);
@@ -109,11 +130,13 @@ public class Solver {
         int priority;
         int moves;
         int manhattan;
+        int hamming;
         Board board;
 
         public Node(Board board, int moves) {
             this.board = board;
             manhattan = board.manhattan();
+            hamming = board.hamming();
             this.moves += moves;
             priority = getPriority();
         }
