@@ -1,6 +1,6 @@
 public class BST2D {
     private Node root;             // root of BST
-    private int N = 1;
+    private int N = 0;
     private static final int DIRECTION_X = 1;
     private static final int DIRECTION_Y = 0;
 
@@ -28,12 +28,14 @@ public class BST2D {
     public void put(Point2D p) {
         Node node = new Node(p, null, null);
 
-        root = put(root, node, DIRECTION_X);
+        if (!contains(p)) {
+            N++;
+            root = put(root, node, DIRECTION_X);
+        }
     }
 
     private Node put(Node parent, Node element, int directionCurr) {
         if (parent == null) {
-            N++;
             return element;
         }
 
@@ -43,9 +45,8 @@ public class BST2D {
 
         if (cmp < 0) parent.lb = put(parent.lb, element, directionNew);
         else if (cmp > 0) parent.rt = put(parent.rt, element, directionNew);
-        else N--;
-
-        N++;
+        else if (element.p.compareTo(parent.p) == 0) return parent;
+        else parent.rt = put(parent.rt, element, directionNew);
 
         return parent;
     }
@@ -91,7 +92,8 @@ public class BST2D {
 
         if (cmp < 0) return get(parent.lb, p, directionNew);
         else if (cmp > 0) return get(parent.rt, p, directionNew);
-        else return parent;
+        else if (p.compareTo(parent.p) == 0) return parent;
+        else return get(parent.rt, p, directionNew);
     }
 
     public Queue<Point2D> range(RectHV rect) {
