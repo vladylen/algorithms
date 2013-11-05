@@ -3,6 +3,8 @@ public class BST2D {
     private int N = 0;
     private static final int DIRECTION_X = 1;
     private static final int DIRECTION_Y = 0;
+    private double minDistance;
+    private Point2D nearestPoint;
 
     private static class Node {
         private Point2D p;      // the point
@@ -126,5 +128,39 @@ public class BST2D {
         }
 
         return queue;
+    }
+
+    public Point2D nearest(Point2D p) {
+        if (isEmpty()) return null;
+
+        minDistance = root.p.distanceSquaredTo(p);
+        nearestPoint = root.p;
+
+        nearest(root, p, 0, minDistance);
+
+        return nearestPoint;
+    }
+
+    private void nearest(Node parent, Point2D p, int worse, double prevDistance) {
+        if (parent == null) return;
+
+        double distance = parent.p.distanceSquaredTo(p);
+
+        if (distance <= minDistance) {
+            minDistance = distance;
+            nearestPoint = parent.p;
+        }
+
+        if (distance <= prevDistance) {
+            worse = 0;
+            nearest(parent.lb, p, worse, distance);
+            nearest(parent.rt, p, worse, distance);
+        } else {
+            if (worse < 2) {
+                worse++;
+                nearest(parent.lb, p, worse, distance);
+                nearest(parent.rt, p, worse, distance);
+            }
+        }
     }
 }
