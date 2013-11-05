@@ -47,7 +47,7 @@ public class BST2D {
 
         if (cmp < 0) parent.lb = put(parent.lb, element, directionNew);
         else if (cmp > 0) parent.rt = put(parent.rt, element, directionNew);
-        else if (element.p.compareTo(parent.p) == 0) return parent;
+        else if (element.p.equals(parent.p)) return parent;
         else parent.rt = put(parent.rt, element, directionNew);
 
         return parent;
@@ -138,6 +138,22 @@ public class BST2D {
 
         nearest(root, p, 0, minDistance);
 
+        double minX = p.x() - Math.abs(p.x() - nearestPoint.x());
+        double maxX = p.x() + Math.abs(p.x() - nearestPoint.x());
+        double minY = p.y() - Math.abs(p.y() - nearestPoint.y());
+        double maxY = p.y() + Math.abs(p.y() - nearestPoint.y());
+
+        Queue<Point2D> points = range(new RectHV(minX, minY, maxX, maxY));
+
+        for (Point2D point : points) {
+            double distance = point.distanceSquaredTo(p);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPoint = point;
+            }
+        }
+
         return nearestPoint;
     }
 
@@ -146,17 +162,17 @@ public class BST2D {
 
         double distance = parent.p.distanceSquaredTo(p);
 
-        if (distance <= minDistance) {
+        if (distance < minDistance) {
             minDistance = distance;
             nearestPoint = parent.p;
         }
 
-        if (distance <= prevDistance) {
+        if (distance < prevDistance) {
             worse = 0;
             nearest(parent.lb, p, worse, distance);
             nearest(parent.rt, p, worse, distance);
         } else {
-            if (worse < 2) {
+            if (worse < 5) {
                 worse++;
                 nearest(parent.lb, p, worse, distance);
                 nearest(parent.rt, p, worse, distance);
