@@ -172,7 +172,7 @@ public class BST2D {
             nearest(parent.lb, p, worse, distance);
             nearest(parent.rt, p, worse, distance);
         } else {
-            if (worse < 5) {
+            if (worse < 2) {
                 worse++;
                 nearest(parent.lb, p, worse, distance);
                 nearest(parent.rt, p, worse, distance);
