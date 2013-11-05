@@ -102,15 +102,28 @@ public class BST2D {
     }
 
     private Queue<Point2D> range(Node parent, RectHV rect, Queue<Point2D> queue, int directionCurr) {
-        if (parent == null) return null;
+        if (parent == null) return queue;
 
         int directionNew = (directionCurr == DIRECTION_X) ? DIRECTION_Y : DIRECTION_X;
 
-        int cmp = comparePoints(new Point2D(rect.xmin(), rect.ymin()), parent.p, directionCurr);
+        if (rect.contains(parent.p)) {
+            queue.enqueue(parent.p);
 
-        if (cmp < 0) return range(parent.lb, rect, queue, directionNew);
-        else if (cmp > 0) return range(parent.rt, rect, queue, directionNew);
-        else queue.enqueue(parent.p);
+            range(parent.lb, rect, queue, directionNew);
+            range(parent.rt, rect, queue, directionNew);
+        } else {
+            int cmpMax = comparePoints(new Point2D(rect.xmax(), rect.ymax()), parent.p, directionCurr);
+            int cmpMin = comparePoints(new Point2D(rect.xmin(), rect.ymin()), parent.p, directionCurr);
+
+            if (cmpMax >= 0 && cmpMin <= 0) {
+                range(parent.lb, rect, queue, directionNew);
+                range(parent.rt, rect, queue, directionNew);
+            } else if (cmpMax <= 0) {
+                return range(parent.lb, rect, queue, directionNew);
+            } else if (cmpMin >= 0) {
+                return range(parent.rt, rect, queue, directionNew);
+            }
+        }
 
         return queue;
     }
