@@ -2,7 +2,6 @@ import java.lang.reflect.Field;
 
 public class SAP {
     private Digraph diGraph;
-    private int top;
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
@@ -11,19 +10,19 @@ public class SAP {
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
-
-        return 1;
-    }
-
-    private boolean hasPath(BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW) {
-        return bfsV.hasPathTo(top) && bfsW.hasPathTo(top);
+        return graphInfo(v, w, "length");
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w) {
+        return graphInfo(v, w, "ancestor");
+    }
+
+    private int graphInfo(int v, int w, String type) {
         Iterable<Integer> shortestPath = null;
         int ancestor = -1;
         int size = -1;
+        int root = getRoot(v);
 
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(diGraph, v);
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(diGraph, w);
@@ -40,33 +39,39 @@ public class SAP {
         }
 
         if (shortestPath == null) {
-            if (hasPath(bfsV, bfsW)) {
-                Iterable<Integer> pathV2Top = bfsV.pathTo(top);
+            if (bothHasPathTo(bfsV, bfsW, root)) {
+                Iterable<Integer> pathV2Top = bfsV.pathTo(root);
                 int additionalSize = 0;
 
                 for (Integer vertex : pathV2Top) {
-                    additionalSize++;
                     if (bfsW.hasPathTo(vertex)) {
                         shortestPath = bfsW.pathTo(vertex);
                         size = getSize(shortestPath) + additionalSize;
                         ancestor = vertex;
                         break;
                     }
+                    additionalSize++;
                 }
             }
         }
 
-        if (shortestPath != null) {
-            StdOut.println("shortestPath = " + shortestPath.toString());
-            StdOut.println("ancestor = " + ancestor);
-            StdOut.println("size = " + size);
+        if (type.equals("length")) {
+            return size;
         } else {
-            StdOut.println("shortestPath LOOSER");
-            StdOut.println("ancestor = " + ancestor);
-            StdOut.println("size = " + size);
+            return ancestor;
+        }
+    }
+
+    private int getRoot(int v) {
+        for (Integer vertex : diGraph.adj(v)) {
+            return getRoot(vertex);
         }
 
-        return ancestor;
+        return v;
+    }
+
+    private boolean bothHasPathTo(BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW, int root) {
+        return bfsV.hasPathTo(root) && bfsW.hasPathTo(root);
     }
 
     private int getSize(Iterable<Integer> shortestPath) {
@@ -74,7 +79,7 @@ public class SAP {
             Field field = shortestPath.getClass().getDeclaredField("N");
             field.setAccessible(true);
             try {
-                return field.getInt(shortestPath);
+                return field.getInt(shortestPath) - 1;
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -105,13 +110,19 @@ public class SAP {
             In in = new In(argFileName);
             Digraph digraph = new Digraph(in);
             SAP sap = new SAP(digraph);
-            sap.top = 0;
 
-
-            StdOut.println("sap.ancestor(3, 2) = " + sap.ancestor(3, 2));
-            StdOut.println("sap.ancestor(3, 0) = " + sap.ancestor(3, 0));
-            StdOut.println("sap.ancestor(3, 10) = " + sap.ancestor(3, 10));
-            StdOut.println("sap.ancestor(5, 11) = " + sap.ancestor(5, 11));
+            StdOut.println("ancestor(3, 2) = " + sap.ancestor(3, 2));
+            StdOut.println("length(3, 2) = " + sap.length(3, 2));
+            StdOut.println("ancestor(3, 0) = " + sap.ancestor(3, 0));
+            StdOut.println("length(3, 0) = " + sap.length(3, 0));
+            StdOut.println("ancestor(3, 11) = " + sap.ancestor(3, 11));
+            StdOut.println("length(3, 11) = " + sap.length(3, 11));
+            StdOut.println("ancestor(5, 11) = " + sap.ancestor(5, 11));
+            StdOut.println("length(5, 11) = " + sap.length(5, 11));
+            StdOut.println("ancestor(5, 5) = " + sap.ancestor(5, 5));
+            StdOut.println("length(5, 5) = " + sap.length(5, 5));
+            StdOut.println("ancestor(5, 6) = " + sap.ancestor(5, 6));
+            StdOut.println("length(5, 6) = " + sap.length(5, 6));
             /*
             int N = in.readInt();
             int M = in.readInt();
