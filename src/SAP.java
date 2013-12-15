@@ -102,38 +102,36 @@ public class SAP {
 
     // for unit testing of this class (such as the one below)
     public static void main(String[] args) {
-        args = new String[1];
-        args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\digraph1.txt";
-        if (args.length > 0) {
-            String argFileName = args[0];
+        boolean test = true;
 
-            In in = new In(argFileName);
-            Digraph digraph = new Digraph(in);
-            SAP sap = new SAP(digraph);
+        if (test) {
+            args = new String[1];
+            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\digraph1.txt";
+        }
 
-            StdOut.println("ancestor(3, 2) = " + sap.ancestor(3, 2));
-            StdOut.println("length(3, 2) = " + sap.length(3, 2));
-            StdOut.println("ancestor(3, 0) = " + sap.ancestor(3, 0));
-            StdOut.println("length(3, 0) = " + sap.length(3, 0));
-            StdOut.println("ancestor(3, 11) = " + sap.ancestor(3, 11));
-            StdOut.println("length(3, 11) = " + sap.length(3, 11));
-            StdOut.println("ancestor(5, 11) = " + sap.ancestor(5, 11));
-            StdOut.println("length(5, 11) = " + sap.length(5, 11));
-            StdOut.println("ancestor(5, 5) = " + sap.ancestor(5, 5));
-            StdOut.println("length(5, 5) = " + sap.length(5, 5));
-            StdOut.println("ancestor(5, 6) = " + sap.ancestor(5, 6));
-            StdOut.println("length(5, 6) = " + sap.length(5, 6));
-            /*
-            int N = in.readInt();
-            int M = in.readInt();
-            for (int i = 0; i < M; i++) {
-                int v = in.readInt();
-                int w = in.readInt();
-                digraph.addEdge(v, w);
-            }
-            */
-        } else {
-            StdOut.println("main() - No arguments.");
+        /*
+        StdOut.println("ancestor(3, 2) = " + sap.ancestor(3, 2));
+        StdOut.println("length(3, 2) = " + sap.length(3, 2));
+        StdOut.println("ancestor(3, 0) = " + sap.ancestor(3, 0));
+        StdOut.println("length(3, 0) = " + sap.length(3, 0));
+        StdOut.println("ancestor(3, 11) = " + sap.ancestor(3, 11));
+        StdOut.println("length(3, 11) = " + sap.length(3, 11));
+        StdOut.println("ancestor(5, 11) = " + sap.ancestor(5, 11));
+        StdOut.println("length(5, 11) = " + sap.length(5, 11));
+        StdOut.println("ancestor(5, 5) = " + sap.ancestor(5, 5));
+        StdOut.println("length(5, 5) = " + sap.length(5, 5));
+        StdOut.println("ancestor(5, 6) = " + sap.ancestor(5, 6));
+        StdOut.println("length(5, 6) = " + sap.length(5, 6));
+        */
+        In in = new In(args[0]);
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        while (!StdIn.isEmpty()) {
+            int v = StdIn.readInt();
+            int w = StdIn.readInt();
+            int length   = sap.length(v, w);
+            int ancestor = sap.ancestor(v, w);
+            StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
         }
     }
 }
