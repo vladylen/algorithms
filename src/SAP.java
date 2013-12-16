@@ -17,7 +17,8 @@ public class SAP {
     }
 
     private int getGraphInfo(int v, int w, String type) {
-        int root = getRoot(v);
+        SET<Integer> root1 = getRoot(v);
+        int root = 0;
         int ancestor;
         int size;
 
@@ -43,6 +44,36 @@ public class SAP {
         } else {
             return ancestor;
         }
+    }
+
+    private SET<Integer> getRoot(int v) {
+        SET<Integer> roots = new SET<Integer>();
+
+        for (Integer vertex : diGraph.adj(v)) {
+            SET<Integer> visited = new SET<Integer>();
+            visited.add(vertex);
+            int rootVertex = getRoot(vertex, visited);
+
+            if (!roots.contains(rootVertex)) {
+                roots.add(rootVertex);
+            }
+
+        }
+
+        return roots;
+    }
+
+    private int getRoot(int v, SET<Integer> visited) {
+        for (Integer vertex : diGraph.adj(v)) {
+            if (!visited.contains(vertex)) {
+                visited.add(vertex);
+                v = getRoot(vertex, visited);
+            } else {
+                return v;
+            }
+        }
+
+        return v;
     }
 
     private GraphInfo getDirectPath(int v, int w, BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW) {
@@ -84,10 +115,16 @@ public class SAP {
         GraphInfo rootGraphInfo = new GraphInfo();
         for (Integer vertex : pathToRoot) {
             if (bfsV.hasPathTo(vertex)) {
-                rootGraphInfo.shortestPath = bfsV.pathTo(vertex);
-                rootGraphInfo.size = getSize(rootGraphInfo.shortestPath) + additionalSize;
-                rootGraphInfo.ancestor = vertex;
-                break;
+                GraphInfo tmpGraphInfo = new GraphInfo();
+                tmpGraphInfo.shortestPath = bfsV.pathTo(vertex);
+                tmpGraphInfo.size = getSize(tmpGraphInfo.shortestPath) + additionalSize;
+                tmpGraphInfo.ancestor = vertex;
+
+                if (rootGraphInfo.size == -1) {
+                    rootGraphInfo = tmpGraphInfo;
+                } else if (tmpGraphInfo.size < rootGraphInfo.size) {
+                    rootGraphInfo = tmpGraphInfo;
+                }
             }
             additionalSize++;
         }
@@ -99,25 +136,6 @@ public class SAP {
         public Iterable<Integer> shortestPath = null;
         public int size = -1;
         public int ancestor = -1;
-    }
-
-
-    private int getRoot(int v) {
-        SET<Integer> visited = new SET<Integer>();
-        return getRoot(v, visited);
-    }
-
-    private int getRoot(int v, SET<Integer> visited) {
-        for (Integer vertex : diGraph.adj(v)) {
-            if (!visited.contains(vertex)) {
-                visited.add(vertex);
-                return getRoot(vertex, visited);
-            } else {
-                return v;
-            }
-        }
-
-        return v;
     }
 
     private boolean bothHasPathTo(BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW, int root) {
