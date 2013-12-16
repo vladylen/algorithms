@@ -83,7 +83,7 @@ public class SAP {
             }
         }
 
-        if (directSize > -1 && directSize < rootSize) {
+        if (directSize > -1 && ((rootSize > -1 && directSize < rootSize) || (directSize > -1 && rootSize < 0))) {
             size = directSize;
             ancestor = directAncestor;
         } else {
@@ -142,11 +142,11 @@ public class SAP {
 
     // for unit testing of this class (such as the one below)
     public static void main(String[] args) {
-        boolean test = false;
+        boolean test = true;
 
         if (test) {
             args = new String[1];
-            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\digraph1.txt";
+            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\digraph5.txt";
         }
 
         /*
