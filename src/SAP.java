@@ -8,87 +8,34 @@ public class SAP {
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w) {
-        return graphInfo(v, w, "length");
+        return getGraphInfo(v, w, "length");
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w) {
-        return graphInfo(v, w, "ancestor");
+        return getGraphInfo(v, w, "ancestor");
     }
 
-    private int graphInfo(int v, int w, String type) {
-        Iterable<Integer> directShortestPath;
-        int directAncestor = -1;
-        int directSize = -1;
-        int rootAncestor = -1;
-        int rootSize = -1;
-        Iterable<Integer> rootShortestPath1;
-        int rootAncestor1 = -1;
-        int rootSize1 = -1;
-        Iterable<Integer> rootShortestPath2;
-        int rootAncestor2 = -1;
-        int rootSize2 = -1;
+    private int getGraphInfo(int v, int w, String type) {
         int root = getRoot(v);
         int ancestor;
         int size;
 
+        GraphInfo rootGraphInfo;
+        GraphInfo directGraphInfo;
+
         BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(diGraph, v);
         BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(diGraph, w);
 
-        // Direct path from v to w or from w to v
-        if (bfsV.hasPathTo(w)) {
-            directShortestPath = bfsV.pathTo(w);
-            directSize = getSize(directShortestPath);
-            directAncestor = w;
-        } else if (bfsW.hasPathTo(v)) {
-            directShortestPath = bfsW.pathTo(v);
-            directSize = getSize(directShortestPath);
-            directAncestor = v;
-        }
+        directGraphInfo = getDirectPath(v, w, bfsV, bfsW);
+        rootGraphInfo = getPathTroughRoot(root, bfsV, bfsW);
 
-        // Path throw root vertex
-        if (bothHasPathTo(bfsV, bfsW, root)) {
-            Iterable<Integer> pathV2Top = bfsV.pathTo(root);
-            int additionalSize = 0;
-
-            for (Integer vertex : pathV2Top) {
-                if (bfsW.hasPathTo(vertex)) {
-                    rootShortestPath1 = bfsW.pathTo(vertex);
-                    rootSize1 = getSize(rootShortestPath1) + additionalSize;
-                    rootAncestor1 = vertex;
-                    break;
-                }
-                additionalSize++;
-            }
-
-            Iterable<Integer> pathW2Top = bfsW.pathTo(root);
-            additionalSize = 0;
-
-            for (Integer vertex : pathW2Top) {
-                if (bfsV.hasPathTo(vertex)) {
-                    rootShortestPath2 = bfsV.pathTo(vertex);
-                    rootSize2 = getSize(rootShortestPath2) + additionalSize;
-                    rootAncestor2 = vertex;
-                    break;
-                }
-                additionalSize++;
-            }
-
-            if (rootSize1 > -1 && rootSize1 < rootSize2) {
-                rootSize = rootSize1;
-                rootAncestor = rootAncestor1;
-            } else {
-                rootSize = rootSize2;
-                rootAncestor = rootAncestor2;
-            }
-        }
-
-        if (directSize > -1 && ((rootSize > -1 && directSize < rootSize) || (directSize > -1 && rootSize < 0))) {
-            size = directSize;
-            ancestor = directAncestor;
+        if (directGraphInfo.size > -1 && ((rootGraphInfo.size > -1 && directGraphInfo.size < rootGraphInfo.size) || (directGraphInfo.size > -1 && rootGraphInfo.size < 0))) {
+            size = directGraphInfo.size;
+            ancestor = directGraphInfo.ancestor;
         } else {
-            size = rootSize;
-            ancestor = rootAncestor;
+            size = rootGraphInfo.size;
+            ancestor = rootGraphInfo.ancestor;
         }
 
         if (type.equals("length")) {
@@ -96,6 +43,62 @@ public class SAP {
         } else {
             return ancestor;
         }
+    }
+
+    private GraphInfo getDirectPath(int v, int w, BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW) {
+        GraphInfo directGraphInfo = new GraphInfo();
+
+        if (bfsV.hasPathTo(w)) {
+            directGraphInfo.shortestPath = bfsV.pathTo(w);
+            directGraphInfo.size = getSize(directGraphInfo.shortestPath);
+            directGraphInfo.ancestor = w;
+        } else if (bfsW.hasPathTo(v)) {
+            directGraphInfo.shortestPath = bfsW.pathTo(v);
+            directGraphInfo.size = getSize(directGraphInfo.shortestPath);
+            directGraphInfo.ancestor = v;
+        }
+
+        return directGraphInfo;
+    }
+
+    private GraphInfo getPathTroughRoot(int root, BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW) {
+        if (bothHasPathTo(bfsV, bfsW, root)) {
+            GraphInfo rootGraphInfoV = getPathToRoot(root, bfsW, bfsV);
+            GraphInfo rootGraphInfoW = getPathToRoot(root, bfsV, bfsW);
+
+            if (rootGraphInfoV.size > -1 && rootGraphInfoV.size < rootGraphInfoW.size) {
+                return rootGraphInfoV;
+            } else {
+                return rootGraphInfoW;
+            }
+        }
+
+        return new GraphInfo();
+    }
+
+    private GraphInfo getPathToRoot(int root, BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW) {
+        int additionalSize;
+        Iterable<Integer> pathToRoot = bfsW.pathTo(root);
+        additionalSize = 0;
+
+        GraphInfo rootGraphInfo = new GraphInfo();
+        for (Integer vertex : pathToRoot) {
+            if (bfsV.hasPathTo(vertex)) {
+                rootGraphInfo.shortestPath = bfsV.pathTo(vertex);
+                rootGraphInfo.size = getSize(rootGraphInfo.shortestPath) + additionalSize;
+                rootGraphInfo.ancestor = vertex;
+                break;
+            }
+            additionalSize++;
+        }
+
+        return rootGraphInfo;
+    }
+
+    private class GraphInfo {
+        public Iterable<Integer> shortestPath = null;
+        public int size = -1;
+        public int ancestor = -1;
     }
 
 
@@ -146,7 +149,7 @@ public class SAP {
 
         if (test) {
             args = new String[1];
-            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\digraph5.txt";
+            args[0] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\digraph5.txt";
         }
 
         /*
