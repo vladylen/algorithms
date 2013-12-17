@@ -2,7 +2,7 @@ import java.util.Iterator;
 
 public class WordNet {
     private SAP sap;
-    private Queue<Node> hypernyms = new Queue<Node>();
+    private Queue<HypernymNode> hypernyms = new Queue<HypernymNode>();
     private SeparateChainingHashST<String, Sunset> sunsets = new SeparateChainingHashST<String, Sunset>(16);
     private SeparateChainingHashST<Integer, String> sunsetIds = new SeparateChainingHashST<Integer, String>(16);
 
@@ -12,7 +12,7 @@ public class WordNet {
         readHypernyms(hypernyms);
 
         Digraph digraph = new Digraph(this.sunsets.size());
-        for (Node node : this.hypernyms) {
+        for (HypernymNode node : this.hypernyms) {
             digraph.addEdge(node.v, node.w);
         }
 
@@ -35,7 +35,7 @@ public class WordNet {
                 }
 
                 if (w > -1) {
-                    Node node = new Node(v, w);
+                    HypernymNode node = new HypernymNode(v, w);
                     hypernyms.enqueue(node);
                 }
             }
@@ -81,7 +81,7 @@ public class WordNet {
     }
 
     // is the word a WordNet noun?
-    public Sunset getNoun(String word) {
+    private Sunset getNoun(String word) {
         return sunsets.get(word);
     }
 
@@ -92,10 +92,15 @@ public class WordNet {
         if (isNoun(nounA) && isNoun(nounB)) {
             Sunset sunsetA = getNoun(nounA);
             Sunset sunsetB = getNoun(nounB);
-            if (sunsetA.iterator().hasNext() && sunsetB.iterator().hasNext()) {
-                Item itemA = sunsetA.iterator().next();
-                Item itemB = sunsetB.iterator().next();
-                length = sap.length(itemA.id, itemB.id);
+
+            for (Item itemA : sunsetA) {
+                for (Item itemB : sunsetB) {
+                    int tmpLength = sap.length(itemA.id, itemB.id);
+
+                    if (length == -1 || tmpLength < length) {
+                        length = tmpLength;
+                    }
+                }
             }
 
             return length;
@@ -105,20 +110,26 @@ public class WordNet {
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
-// in a shortest ancestral path (defined below)
+    // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) throws IllegalArgumentException {
         String ancestor = "";
 
         if (isNoun(nounA) && isNoun(nounB)) {
             Sunset sunsetA = getNoun(nounA);
             Sunset sunsetB = getNoun(nounB);
+            int length = -1;
 
-            if (sunsetA.iterator().hasNext() && sunsetB.iterator().hasNext()) {
-                Item itemA = sunsetA.iterator().next();
-                Item itemB = sunsetB.iterator().next();
-                int ancestorId = sap.ancestor(itemA.id, itemB.id);
+            for (Item itemA : sunsetA) {
+                for (Item itemB : sunsetB) {
+                    int tmpLength = sap.length(itemA.id, itemB.id);
 
-                ancestor = sunsetIds.get(ancestorId);
+                    if (length == -1 || tmpLength < length) {
+                        length = tmpLength;
+                        int ancestorId = sap.ancestor(itemA.id, itemB.id);
+
+                        ancestor = sunsetIds.get(ancestorId);
+                    }
+                }
             }
 
             return ancestor;
@@ -127,11 +138,11 @@ public class WordNet {
         }
     }
 
-    private class Node {
+    private class HypernymNode {
         public int v;
         public int w;
 
-        public Node(int v, int w) {
+        public HypernymNode(int v, int w) {
             this.v = v;
             this.w = w;
         }
@@ -173,7 +184,7 @@ public class WordNet {
 
     // for unit testing of this class
     public static void main(String[] args) {
-        boolean test = true;
+        boolean test = false;
 
         if (test) {
             args = new String[2];
@@ -192,10 +203,13 @@ public class WordNet {
             StdOut.println("distance(a, c) = " + wordnet.distance("a", "c"));
             StdOut.println("sap(a, c) = " + wordnet.sap("a", "c"));
             */
+            /**/
             StdOut.println("distance(Black_Plague, black_marlin) = " + wordnet.distance("Black_Plague", "black_marlin"));
             StdOut.println("distance(American_water_spaniel, histology) = " + wordnet.distance("American_water_spaniel", "histology"));
             StdOut.println("distance(Brown_Swiss, barrel_roll) = " + wordnet.distance("Brown_Swiss", "barrel_roll"));
             StdOut.println("distance(municipality, region) = " + wordnet.distance("municipality", "region"));
+            StdOut.println("sap(municipality, region) = " + wordnet.sap("municipality", "region"));
+            /**/
         }
     }
 }
