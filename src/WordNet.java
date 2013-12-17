@@ -1,14 +1,14 @@
 public class WordNet {
     private SAP sap;
     private Queue<Node> hypernyms = new Queue<Node>();
-    private SeparateChainingHashST<String, Sunset> sunsetsHashST = new SeparateChainingHashST<String, Sunset>(10);
+    private SeparateChainingHashST<String, Sunset> sunsets = new SeparateChainingHashST<String, Sunset>(16);
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
         readSunsets(synsets);
         readHypernyms(hypernyms);
 
-        Digraph digraph = new Digraph(sunsetsHashST.size());
+        Digraph digraph = new Digraph(this.sunsets.size());
         for (Node node : this.hypernyms) {
             digraph.addEdge(node.v, node.w);
         }
@@ -41,8 +41,8 @@ public class WordNet {
         }
     }
 
-    private void readSunsets(String synsets) {
-        In inS = new In(synsets);
+    private void readSunsets(String synsetFile) {
+        In inS = new In(synsetFile);
         while (!inS.isEmpty()) {
             String line = inS.readLine();
             String[] fields = line.split(",");
@@ -51,8 +51,20 @@ public class WordNet {
             String sunset = fields[1];
             String description = fields[2];
 
-            Sunset item = new Sunset(id, sunset, description);
-            sunsetsHashST.put(id + sunset, item);
+            String[] nouns = sunset.split(" ");
+
+            for (int i = 0; i < nouns.length; i++) {
+                Sunset item;
+
+                if (sunsets.contains(nouns[i])) {
+                    item = new Sunset(sunsets.get(nouns[i]));
+                    item.addSunset(id, sunset, description);
+                } else {
+                    item = new Sunset(id, sunset, description);
+                }
+
+                sunsets.put(nouns[i], item);
+            }
         }
     }
 
@@ -67,25 +79,37 @@ public class WordNet {
     }
 
     private class Sunset {
-        public int id;
-        public String sunset;
-        public String description;
+        public Queue<Integer> id = new Queue<Integer>();
+        public Queue<String> sunset = new Queue<String>();
+        public Queue<String> description = new Queue<String>();
 
         public Sunset(int id, String sunset, String description) {
-            this.id = id;
-            this.sunset = sunset;
-            this.description = description;
+            addSunset(id, sunset, description);
+        }
+
+        public Sunset(Sunset sunset) {
+            this.id = sunset.id;
+            this.sunset = sunset.sunset;
+            this.description = sunset.description;
+        }
+
+        public Sunset addSunset(int id, String sunset, String description) {
+            this.id.enqueue(id);
+            this.sunset.enqueue(sunset);
+            this.description.enqueue(description);
+
+            return this;
         }
     }
 
     // the set of nouns (no duplicates), returned as an Iterable
     public Iterable<String> nouns() {
-        return new Stack<String>();
+        return sunsets.keys();
     }
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
-        return false;
+        return sunsets.contains(word);
     }
 
     // distance between nounA and nounB (defined below)
@@ -105,10 +129,15 @@ public class WordNet {
 
         if (test) {
             args = new String[2];
-            args[0] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\synsets15.txt";
-            args[1] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\hypernymsPath15.txt";
+            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\synsets15.txt";
+            args[1] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\hypernymsPath15.txt";
         }
 
         WordNet wordnet = new WordNet(args[0], args[1]);
+
+        StdOut.println("isNoun(a) = " + wordnet.isNoun("a"));
+        StdOut.println("isNoun(c) = " + wordnet.isNoun("c"));
+        StdOut.println("isNoun(zz) = " + wordnet.isNoun("zz"));
+        StdOut.println("nouns = " + wordnet.nouns());
     }
 }
