@@ -139,17 +139,25 @@ public class WordNet {
     }
 
     private class HypernymNode {
-        public int v;
-        public int w;
+        private int v;
+        private int w;
 
         public HypernymNode(int v, int w) {
             this.v = v;
             this.w = w;
         }
+
+        public int getV() {
+            return v;
+        }
+
+        public int getW() {
+            return w;
+        }
     }
 
     private class Sunset implements Iterable<Item> {
-        public Queue<Item> items = new Queue<Item>();
+        private Queue<Item> items = new Queue<Item>();
 
         public Sunset(int id, String sunset, String description) {
             addSunset(id, sunset, description);
@@ -168,12 +176,16 @@ public class WordNet {
         public Iterator<Item> iterator() {
             return items.iterator();
         }
+
+        public Queue<Item> getItems() {
+            return items;
+        }
     }
 
     private class Item {
-        public int id;
-        public String sunset;
-        public String description;
+        private int id;
+        private String sunset;
+        private String description;
 
         public Item(int id, String sunset, String description) {
             this.id = id;

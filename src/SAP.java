@@ -34,12 +34,12 @@ public class SAP {
     }
 
     private int getGraphInfo(Iterable<Integer> v, Iterable<Integer> w, String type) throws IndexOutOfBoundsException {
-        for (Integer value : v) {
+        for (int value : v) {
             if (value < 0 || value >= diGraph.V()) {
                 throw new IndexOutOfBoundsException();
             }
         }
-        for (Integer value : w) {
+        for (int value : w) {
             if (value < 0 || value >= diGraph.V()) {
                 throw new IndexOutOfBoundsException();
             }
@@ -85,8 +85,16 @@ public class SAP {
     }
 
     private class GraphInfo {
-        public int length = -1;
-        public int ancestor = -1;
+        private int length = -1;
+        private int ancestor = -1;
+
+        public int getLength(){
+            return length;
+        }
+
+        public int getAncestor(){
+            return ancestor;
+        }
     }
 
     // for unit testing of this class (such as the one below)
