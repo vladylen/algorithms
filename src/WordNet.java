@@ -1,7 +1,10 @@
+import java.util.Iterator;
+
 public class WordNet {
     private SAP sap;
     private Queue<Node> hypernyms = new Queue<Node>();
     private SeparateChainingHashST<String, Sunset> sunsets = new SeparateChainingHashST<String, Sunset>(16);
+    private SeparateChainingHashST<Integer, String> sunsetIds = new SeparateChainingHashST<Integer, String>(16);
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -14,8 +17,6 @@ public class WordNet {
         }
 
         sap = new SAP(digraph);
-        StdOut.println(sap.length(0, 10));
-        StdOut.println(sap.length(1, 10));
     }
 
     private void readHypernyms(String hypernymsFile) {
@@ -51,6 +52,7 @@ public class WordNet {
             String sunset = fields[1];
             String description = fields[2];
 
+            sunsetIds.put(id, sunset);
             String[] nouns = sunset.split(" ");
 
             for (int i = 0; i < nouns.length; i++) {
@@ -68,40 +70,6 @@ public class WordNet {
         }
     }
 
-    private class Node {
-        public int v;
-        public int w;
-
-        public Node(int v, int w) {
-            this.v = v;
-            this.w = w;
-        }
-    }
-
-    private class Sunset {
-        public Queue<Integer> id = new Queue<Integer>();
-        public Queue<String> sunset = new Queue<String>();
-        public Queue<String> description = new Queue<String>();
-
-        public Sunset(int id, String sunset, String description) {
-            addSunset(id, sunset, description);
-        }
-
-        public Sunset(Sunset sunset) {
-            this.id = sunset.id;
-            this.sunset = sunset.sunset;
-            this.description = sunset.description;
-        }
-
-        public Sunset addSunset(int id, String sunset, String description) {
-            this.id.enqueue(id);
-            this.sunset.enqueue(sunset);
-            this.description.enqueue(description);
-
-            return this;
-        }
-    }
-
     // the set of nouns (no duplicates), returned as an Iterable
     public Iterable<String> nouns() {
         return sunsets.keys();
@@ -112,15 +80,95 @@ public class WordNet {
         return sunsets.contains(word);
     }
 
+    // is the word a WordNet noun?
+    public Sunset getNoun(String word) {
+        return sunsets.get(word);
+    }
+
     // distance between nounA and nounB (defined below)
-    public int distance(String nounA, String nounB) {
-        return -1;
+    public int distance(String nounA, String nounB) throws IllegalArgumentException {
+        int length = -1;
+
+        if (isNoun(nounA) && isNoun(nounB)) {
+            Sunset sunsetA = getNoun(nounA);
+            Sunset sunsetB = getNoun(nounB);
+            if (sunsetA.iterator().hasNext() && sunsetB.iterator().hasNext()) {
+                Item itemA = sunsetA.iterator().next();
+                Item itemB = sunsetB.iterator().next();
+                length = sap.length(itemA.id, itemB.id);
+            }
+
+            return length;
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
 // in a shortest ancestral path (defined below)
-    public String sap(String nounA, String nounB) {
-        return "";
+    public String sap(String nounA, String nounB) throws IllegalArgumentException {
+        String ancestor = "";
+
+        if (isNoun(nounA) && isNoun(nounB)) {
+            Sunset sunsetA = getNoun(nounA);
+            Sunset sunsetB = getNoun(nounB);
+
+            if (sunsetA.iterator().hasNext() && sunsetB.iterator().hasNext()) {
+                Item itemA = sunsetA.iterator().next();
+                Item itemB = sunsetB.iterator().next();
+                int ancestorId = sap.ancestor(itemA.id, itemB.id);
+
+                ancestor = sunsetIds.get(ancestorId);
+            }
+
+            return ancestor;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private class Node {
+        public int v;
+        public int w;
+
+        public Node(int v, int w) {
+            this.v = v;
+            this.w = w;
+        }
+    }
+
+    private class Sunset implements Iterable<Item> {
+        public Queue<Item> items = new Queue<Item>();
+
+        public Sunset(int id, String sunset, String description) {
+            addSunset(id, sunset, description);
+        }
+
+        public Sunset(Sunset sunset) {
+            this.items = sunset.items;
+        }
+
+        public Sunset addSunset(int id, String sunset, String description) {
+            this.items.enqueue(new Item(id, sunset, description));
+
+            return this;
+        }
+
+        public Iterator<Item> iterator() {
+            return items.iterator();
+        }
+    }
+
+    private class Item {
+        public int id;
+        public String sunset;
+        public String description;
+
+        public Item(int id, String sunset, String description) {
+            this.id = id;
+            this.sunset = sunset;
+            this.description = description;
+        }
     }
 
     // for unit testing of this class
@@ -129,15 +177,25 @@ public class WordNet {
 
         if (test) {
             args = new String[2];
-            args[0] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\synsets15.txt";
-            args[1] = "C:\\Users\\Vlad\\IdeaProjects\\Algorithms\\wordnet\\hypernymsPath15.txt";
+            args[0] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\synsets.txt";
+            args[1] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\hypernyms.txt";
         }
 
         WordNet wordnet = new WordNet(args[0], args[1]);
 
-        StdOut.println("isNoun(a) = " + wordnet.isNoun("a"));
-        StdOut.println("isNoun(c) = " + wordnet.isNoun("c"));
-        StdOut.println("isNoun(zz) = " + wordnet.isNoun("zz"));
-        StdOut.println("nouns = " + wordnet.nouns());
+        if (test) {
+            /*
+            StdOut.println("isNoun(a) = " + wordnet.isNoun("a"));
+            StdOut.println("isNoun(c) = " + wordnet.isNoun("c"));
+            StdOut.println("isNoun(zz) = " + wordnet.isNoun("zz"));
+            StdOut.println("nouns = " + wordnet.nouns());
+            StdOut.println("distance(a, c) = " + wordnet.distance("a", "c"));
+            StdOut.println("sap(a, c) = " + wordnet.sap("a", "c"));
+            */
+            StdOut.println("distance(Black_Plague, black_marlin) = " + wordnet.distance("Black_Plague", "black_marlin"));
+            StdOut.println("distance(American_water_spaniel, histology) = " + wordnet.distance("American_water_spaniel", "histology"));
+            StdOut.println("distance(Brown_Swiss, barrel_roll) = " + wordnet.distance("Brown_Swiss", "barrel_roll"));
+            StdOut.println("distance(municipality, region) = " + wordnet.distance("municipality", "region"));
+        }
     }
 }
