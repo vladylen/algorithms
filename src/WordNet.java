@@ -2,12 +2,15 @@ import java.util.Iterator;
 
 public class WordNet {
     private SAP sap;
+    private boolean[] marked;
+    private boolean[] grey;
+    private SET<Integer> uniqueSunsets = new SET<Integer>();
     private Queue<HypernymNode> hypernyms = new Queue<HypernymNode>();
     private SeparateChainingHashST<String, Sunset> sunsets = new SeparateChainingHashST<String, Sunset>(16);
     private SeparateChainingHashST<Integer, String> sunsetIds = new SeparateChainingHashST<Integer, String>(16);
 
     // constructor takes the name of the two input files
-    public WordNet(String synsets, String hypernyms) {
+    public WordNet(String synsets, String hypernyms) throws IllegalArgumentException {
         readSunsets(synsets);
         readHypernyms(hypernyms);
 
@@ -16,11 +19,64 @@ public class WordNet {
             digraph.addEdge(node.v, node.w);
         }
 
+        // Check root uniqueness
+        int root = -1;
+        int count = 0;
+        for (int v = 0; v < digraph.V(); ++v) {
+            // Count number of vertices with edges (not root vertices).
+            if (digraph.adj(v).iterator().hasNext()) {
+                count++;
+            }
+        }
+
+        int rootCount = uniqueSunsets.size() - count;
+        if (rootCount != 1) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        for (int v : this.uniqueSunsets) {
+            if (!digraph.adj(v).iterator().hasNext()) {
+                root = v;
+            }
+        }
+
+        Digraph reverse = digraph.reverse();
+        marked = new boolean[reverse.V()];
+        grey = new boolean[reverse.V()];
+        grey[root] = true;
+
+        if (dfs(reverse, root)) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
         sap = new SAP(digraph);
+    }
+
+    private boolean dfs(Digraph G, int v) {
+        marked[v] = true;
+
+        for (int w : G.adj(v)) {
+            if (grey[w]) {
+                return true;
+            }
+
+            if (!marked[w]) {
+                grey[w] = true;
+                boolean cycle = dfs(G, w);
+                grey[w] = false;
+
+                if (cycle) {
+                    return cycle;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void readHypernyms(String hypernymsFile) {
         In inH = new In(hypernymsFile);
+
         while (!inH.isEmpty()) {
             String line = inH.readLine();
             String[] fields = line.split(",");
@@ -36,6 +92,8 @@ public class WordNet {
 
                 if (w > -1) {
                     HypernymNode node = new HypernymNode(v, w);
+                    uniqueSunsets.add(v);
+                    uniqueSunsets.add(w);
                     hypernyms.enqueue(node);
                 }
             }
@@ -60,9 +118,9 @@ public class WordNet {
 
                 if (sunsets.contains(nouns[i])) {
                     item = new Sunset(sunsets.get(nouns[i]));
-                    item.addSunset(id, sunset, description);
+                    item.addSunset(id);
                 } else {
-                    item = new Sunset(id, sunset, description);
+                    item = new Sunset(id);
                 }
 
                 sunsets.put(nouns[i], item);
@@ -93,9 +151,9 @@ public class WordNet {
             Sunset sunsetA = getNoun(nounA);
             Sunset sunsetB = getNoun(nounB);
 
-            for (Item itemA : sunsetA) {
-                for (Item itemB : sunsetB) {
-                    int tmpLength = sap.length(itemA.id, itemB.id);
+            for (int itemA : sunsetA) {
+                for (int itemB : sunsetB) {
+                    int tmpLength = sap.length(itemA, itemB);
 
                     if (length == -1 || tmpLength < length) {
                         length = tmpLength;
@@ -119,13 +177,13 @@ public class WordNet {
             Sunset sunsetB = getNoun(nounB);
             int length = -1;
 
-            for (Item itemA : sunsetA) {
-                for (Item itemB : sunsetB) {
-                    int tmpLength = sap.length(itemA.id, itemB.id);
+            for (int itemA : sunsetA) {
+                for (int itemB : sunsetB) {
+                    int tmpLength = sap.length(itemA, itemB);
 
                     if (length == -1 || tmpLength < length) {
                         length = tmpLength;
-                        int ancestorId = sap.ancestor(itemA.id, itemB.id);
+                        int ancestorId = sap.ancestor(itemA, itemB);
 
                         ancestor = sunsetIds.get(ancestorId);
                     }
@@ -146,51 +204,27 @@ public class WordNet {
             this.v = v;
             this.w = w;
         }
-
-        public int getV() {
-            return v;
-        }
-
-        public int getW() {
-            return w;
-        }
     }
 
-    private class Sunset implements Iterable<Item> {
-        private Queue<Item> items = new Queue<Item>();
+    private class Sunset implements Iterable<Integer> {
+        private Queue<Integer> ids = new Queue<Integer>();
 
-        public Sunset(int id, String sunset, String description) {
-            addSunset(id, sunset, description);
+        public Sunset(int id) {
+            addSunset(id);
         }
 
         public Sunset(Sunset sunset) {
-            this.items = sunset.items;
+            this.ids = sunset.ids;
         }
 
-        public Sunset addSunset(int id, String sunset, String description) {
-            this.items.enqueue(new Item(id, sunset, description));
+        public Sunset addSunset(int id) {
+            this.ids.enqueue(id);
 
             return this;
         }
 
-        public Iterator<Item> iterator() {
-            return items.iterator();
-        }
-
-        public Queue<Item> getItems() {
-            return items;
-        }
-    }
-
-    private class Item {
-        private int id;
-        private String sunset;
-        private String description;
-
-        public Item(int id, String sunset, String description) {
-            this.id = id;
-            this.sunset = sunset;
-            this.description = description;
+        public Iterator<Integer> iterator() {
+            return ids.iterator();
         }
     }
 
@@ -202,26 +236,20 @@ public class WordNet {
             args = new String[2];
             args[0] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\synsets.txt";
             args[1] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\hypernyms.txt";
+            /**/
+             args[0] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\synsets3.txt";
+             args[1] = "C:\\Users\\vlsh\\Dropbox\\Algorithms\\wordnet\\hypernymsInvalidCycle.txt";
+             /**/
         }
 
         WordNet wordnet = new WordNet(args[0], args[1]);
 
         if (test) {
-            /*
-            StdOut.println("isNoun(a) = " + wordnet.isNoun("a"));
-            StdOut.println("isNoun(c) = " + wordnet.isNoun("c"));
-            StdOut.println("isNoun(zz) = " + wordnet.isNoun("zz"));
-            StdOut.println("nouns = " + wordnet.nouns());
-            StdOut.println("distance(a, c) = " + wordnet.distance("a", "c"));
-            StdOut.println("sap(a, c) = " + wordnet.sap("a", "c"));
-            */
-            /**/
             StdOut.println("distance(Black_Plague, black_marlin) = " + wordnet.distance("Black_Plague", "black_marlin"));
             StdOut.println("distance(American_water_spaniel, histology) = " + wordnet.distance("American_water_spaniel", "histology"));
             StdOut.println("distance(Brown_Swiss, barrel_roll) = " + wordnet.distance("Brown_Swiss", "barrel_roll"));
             StdOut.println("distance(municipality, region) = " + wordnet.distance("municipality", "region"));
             StdOut.println("sap(municipality, region) = " + wordnet.sap("municipality", "region"));
-            /**/
         }
     }
 }
